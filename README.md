@@ -141,3 +141,4 @@ Switcher URL endpoints in `api/` (Vercel). To deploy: `vercel --prod`.
 ## License
 
 MIT. WebView Screensaver is bundled under Apache 2.0 (see [liquidx/webviewscreensaver](https://github.com/liquidx/webviewscreensaver)).
+
