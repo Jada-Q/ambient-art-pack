@@ -99,6 +99,21 @@ let PIECES: [Piece] = [
             Variant(key: "europe",      label: "Europe"),
         ]
     ),
+    Piece(
+        key: "moon-phase",
+        label: "Moon Phase",
+        emoji: "🌙",
+        baseURL: "https://moon-phase-2026-05-16.vercel.app/",
+        variantParam: "c",
+        variants: [
+            Variant(key: "tokyo",     label: "Tokyo (default)"),
+            Variant(key: "kyoto",     label: "Kyoto 京都"),
+            Variant(key: "hangzhou",  label: "Hangzhou 杭州"),
+            Variant(key: "nyc",       label: "New York"),
+            Variant(key: "reykjavik", label: "Reykjavík"),
+            Variant(key: "sydney",    label: "Sydney"),
+        ]
+    ),
 ]
 
 let RELOAD_INTERVAL: TimeInterval = 10 * 60

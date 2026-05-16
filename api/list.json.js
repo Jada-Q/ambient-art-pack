@@ -8,6 +8,7 @@ const PIECES = [
   { kScreenSaverURL: "https://bay-ships-2026-05-07.vercel.app/", kScreenSaverTime: 600 },
   { kScreenSaverURL: "https://subway-pulse-2026-05-07.vercel.app/", kScreenSaverTime: 600 },
   { kScreenSaverURL: "https://quake-globe-2026-05-07.vercel.app/", kScreenSaverTime: 600 },
+  { kScreenSaverURL: "https://moon-phase-2026-05-16.vercel.app/", kScreenSaverTime: 600 },
 ];
 
 export default function handler(req, res) {

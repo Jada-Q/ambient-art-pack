@@ -7,6 +7,7 @@ const PIECES = [
   "https://bay-ships-2026-05-07.vercel.app/",
   "https://subway-pulse-2026-05-07.vercel.app/",
   "https://quake-globe-2026-05-07.vercel.app/",
+  "https://moon-phase-2026-05-16.vercel.app/",
 ];
 
 export default function handler(req, res) {

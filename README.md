@@ -1,6 +1,6 @@
 # Ambient Art Pack
 
-Five ambient art pieces — set them as your Mac desktop wallpaper or screensaver. Pieces rotate automatically; their content updates live as they evolve.
+Six ambient art pieces — set them as your Mac desktop wallpaper or screensaver. Pieces rotate automatically; their content updates live as they evolve.
 
 **Pieces** (each has 3-6 city/region variants):
 - 🌊 [Tide Pixels](https://tide-pixels-2026-05-06.vercel.app/) — ocean canvas with sun, moon, tide direction, and a pixel 海女 holding a fish basket
@@ -8,6 +8,7 @@ Five ambient art pieces — set them as your Mac desktop wallpaper or screensave
 - 🗼 [Bay Ships](https://bay-ships-2026-05-07.vercel.app/) — bay vessel positions, with a 91-year-old lighthouse keeper
 - 🚇 [Subway Pulse](https://subway-pulse-2026-05-07.vercel.app/) — Tokyo metro line pulses, with a Yamanote loop rider
 - 🪨 [Quake Globe](https://quake-globe-2026-05-07.vercel.app/) — rotating earth with live seismic events
+- 🌙 [Moon Phase](https://moon-phase-2026-05-16.vercel.app/) — tonight's moon (phase, position, rise/set) over your chosen city, with a moon rabbit Tsuki
 
 ---
 
