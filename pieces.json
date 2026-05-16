@@ -1,0 +1,96 @@
+[
+  {
+    "key": "random",
+    "label": "Random rotation",
+    "emoji": "🎲",
+    "baseURL": "https://ambient-art-pack.vercel.app/random",
+    "variantParam": null,
+    "variants": []
+  },
+  {
+    "key": "tide-pixels",
+    "label": "Tide Pixels",
+    "emoji": "🌊",
+    "baseURL": "https://tide-pixels-2026-05-06.vercel.app/",
+    "variantParam": "c",
+    "variants": [
+      { "key": "tokyo",     "label": "Tokyo (default)" },
+      { "key": "osaka",     "label": "Osaka" },
+      { "key": "hangzhou",  "label": "Hangzhou 杭州" },
+      { "key": "nyc",       "label": "New York" },
+      { "key": "reykjavik", "label": "Reykjavík" },
+      { "key": "sydney",    "label": "Sydney" }
+    ]
+  },
+  {
+    "key": "sky-traffic",
+    "label": "Sky Traffic",
+    "emoji": "🛬",
+    "baseURL": "https://sky-traffic-2026-05-07.vercel.app/",
+    "variantParam": "c",
+    "variants": [
+      { "key": "tokyo",    "label": "Tokyo (HND/NRT, default)" },
+      { "key": "osaka",    "label": "Osaka (ITM/KIX)" },
+      { "key": "shanghai", "label": "Shanghai (PVG/SHA)" },
+      { "key": "hkg",      "label": "Hong Kong (HKG)" },
+      { "key": "lax",      "label": "Los Angeles (LAX)" },
+      { "key": "nyc",      "label": "New York (JFK/LGA/EWR)" }
+    ]
+  },
+  {
+    "key": "bay-ships",
+    "label": "Bay Ships",
+    "emoji": "🗼",
+    "baseURL": "https://bay-ships-2026-05-07.vercel.app/",
+    "variantParam": "b",
+    "variants": [
+      { "key": "tokyo-bay", "label": "Tokyo Bay (default)" },
+      { "key": "osaka-bay", "label": "Osaka Bay (Akashi Strait)" },
+      { "key": "ny-harbor", "label": "New York Harbor" }
+    ]
+  },
+  {
+    "key": "subway-pulse",
+    "label": "Subway Pulse",
+    "emoji": "🚇",
+    "baseURL": "https://subway-pulse-2026-05-07.vercel.app/",
+    "variantParam": "l",
+    "variants": [
+      { "key": "all",        "label": "All 5 lines (default)" },
+      { "key": "yamanote",   "label": "Yamanote" },
+      { "key": "marunouchi", "label": "Marunouchi" },
+      { "key": "ginza",      "label": "Ginza" },
+      { "key": "hibiya",     "label": "Hibiya" },
+      { "key": "chiyoda",    "label": "Chiyoda" }
+    ]
+  },
+  {
+    "key": "quake-globe",
+    "label": "Quake Globe",
+    "emoji": "🪨",
+    "baseURL": "https://quake-globe-2026-05-07.vercel.app/",
+    "variantParam": "r",
+    "variants": [
+      { "key": "world",       "label": "World (default)" },
+      { "key": "japan",       "label": "Japan" },
+      { "key": "pacific-rim", "label": "Pacific Rim" },
+      { "key": "americas",    "label": "Americas" },
+      { "key": "europe",      "label": "Europe" }
+    ]
+  },
+  {
+    "key": "moon-phase",
+    "label": "Moon Phase",
+    "emoji": "🌙",
+    "baseURL": "https://moon-phase-2026-05-16.vercel.app/",
+    "variantParam": "c",
+    "variants": [
+      { "key": "tokyo",     "label": "Tokyo (default)" },
+      { "key": "kyoto",     "label": "Kyoto 京都" },
+      { "key": "hangzhou",  "label": "Hangzhou 杭州" },
+      { "key": "nyc",       "label": "New York" },
+      { "key": "reykjavik", "label": "Reykjavík" },
+      { "key": "sydney",    "label": "Sydney" }
+    ]
+  }
+]

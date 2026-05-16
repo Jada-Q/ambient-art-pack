@@ -24,6 +24,12 @@ swiftc -O \
   -framework WebKit \
   src/main.swift
 
+# Bundle pieces.json as offline fallback. Canonical source served by Vercel at
+# https://ambient-art-pack.vercel.app/pieces.json — app fetches that at startup
+# and falls back to this bundled copy on first run / no network.
+echo "→ bundling pieces.json into Resources..."
+cp ../pieces.json "$CONTENTS/Resources/pieces.json"
+
 # Info.plist
 cat > "$CONTENTS/Info.plist" <<EOF
 <?xml version="1.0" encoding="UTF-8"?>
@@ -63,9 +69,21 @@ EOF
 echo "→ ad-hoc signing..."
 codesign --force --deep --sign - "$APP_DIR"
 
+# Zip + place at project-root build/ where the launchd watcher
+# (~/Library/LaunchAgents/com.jada.ambient-watcher.plist) picks it up
+# and auto-installs to /Applications.
+echo "→ zipping + staging for launchd watcher..."
+cd "$ROOT/build"
+rm -f "$APP_NAME.app.zip"
+zip -qr "$APP_NAME.app.zip" "$APP_NAME.app"
+cd "$ROOT/.."
+mkdir -p build
+cp "ambient-app/build/$APP_NAME.app.zip" "build/$APP_NAME.app.zip"
+
 # Verify
 echo ""
 echo "✓ Built: $APP_DIR"
-du -sh "$APP_DIR"
+echo "✓ Zip:   $ROOT/build/$APP_NAME.app.zip → $(cd "$ROOT/.."; pwd)/build/$APP_NAME.app.zip"
+du -sh "$APP_DIR" "$ROOT/build/$APP_NAME.app.zip"
 echo ""
 codesign -dv "$APP_DIR" 2>&1 | head -3

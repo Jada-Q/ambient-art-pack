@@ -97,9 +97,27 @@ Ambient.app (menu bar)
       └→ loads piece URL (with selected city/region param)
           └→ on 10-min timer: reload
               └→ if Random: re-fetches /random → 307 to a new piece
+
+Piece catalog source (priority chain):
+  1. /Library/Caches/net.jada.ambient/pieces.json  (last successful fetch)
+  2. Bundle Resources/pieces.json                  (ships with app)
+  3. Minimal hardcoded fallback (Random only)
 ```
 
-Source: `ambient-app/src/main.swift` · about 200 lines AppKit + WebKit.
+Source: `ambient-app/src/main.swift` · about 280 lines AppKit + WebKit.
+
+## Adding a new piece (no rebuild needed)
+
+The piece catalog is **fetched from `https://ambient-art-pack.vercel.app/pieces.json` at startup**. To add a new piece:
+
+1. Edit `/pieces.json` at repo root — add a new `{ key, label, emoji, baseURL, variantParam, variants }` entry
+2. `git push` — Vercel auto-deploys `/pieces.json` in ~30s
+3. Click menu bar 🌊 → **Refresh Pieces from Remote** (⌘⇧R) — new piece appears immediately
+   - Or just relaunch the app — fetched on every startup
+
+No Swift edit, no rebuild, no `.app` reinstall.
+
+(Swift code only needs to change for new menu features / piece-loading logic. The catalog is data, not code.)
 
 ## Uninstall
 
