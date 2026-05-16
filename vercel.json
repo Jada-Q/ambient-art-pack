@@ -1,0 +1,6 @@
+{
+  "rewrites": [
+    { "source": "/random", "destination": "/api/random" },
+    { "source": "/list.json", "destination": "/api/list.json" }
+  ]
+}

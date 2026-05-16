@@ -1,0 +1,42 @@
+#!/bin/bash
+# Ambient Art Pack — postinstall
+# Configure WebView Screensaver to use our remote URL list.
+# Runs as root (system-wide install), so we resolve target user via /dev/console.
+
+set -e
+
+# Detect the user who initiated this install
+TARGET_USER=$(stat -f "%Su" /dev/console)
+if [ -z "$TARGET_USER" ] || [ "$TARGET_USER" = "root" ]; then
+    echo "Could not determine target user; defaulting to first console session."
+    TARGET_USER=$(stat -f "%Su" /dev/console 2>/dev/null || echo "")
+fi
+
+if [ -z "$TARGET_USER" ]; then
+    echo "ERROR: No target user found — skipping defaults configuration."
+    echo "User must manually configure URL in System Settings → Screen Saver."
+    exit 0
+fi
+
+LIST_URL="https://ambient-art-pack.vercel.app/list.json"
+
+echo "Configuring WebView Screensaver for user: $TARGET_USER"
+echo "  Remote URL list: $LIST_URL"
+
+# Write per-host defaults as the target user
+sudo -u "$TARGET_USER" defaults -currentHost write \
+    net.liquidx.WebViewScreenSaver kScreenSaverFetchURLs -bool true || true
+
+sudo -u "$TARGET_USER" defaults -currentHost write \
+    net.liquidx.WebViewScreenSaver kScreenSaverURLsURL "$LIST_URL" || true
+
+echo ""
+echo "✓ Ambient Art Pack installed."
+echo ""
+echo "Next steps:"
+echo "  1. Open System Settings → Screen Saver"
+echo "  2. Select 'WebViewScreenSaver' from the list"
+echo "  3. (Optional) Set idle delay under Lock Screen settings"
+echo ""
+
+exit 0

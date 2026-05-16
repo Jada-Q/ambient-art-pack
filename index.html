@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Ambient Art Pack — desktop screensaver</title>
+    <style>
+      :root {
+        color-scheme: dark;
+      }
+      body {
+        margin: 0;
+        background: #0a0d12;
+        color: #e8e4dc;
+        font-family: ui-serif, Georgia, "Times New Roman", serif;
+        line-height: 1.6;
+      }
+      main {
+        max-width: 720px;
+        margin: 0 auto;
+        padding: 80px 28px 100px;
+      }
+      h1 {
+        font-size: 28px;
+        letter-spacing: 0.25em;
+        text-transform: uppercase;
+        font-weight: 400;
+        margin: 0 0 8px;
+      }
+      .sub {
+        font-size: 13px;
+        opacity: 0.55;
+        font-style: italic;
+        margin-bottom: 60px;
+      }
+      h2 {
+        margin: 56px 0 16px;
+        font-size: 14px;
+        letter-spacing: 0.3em;
+        text-transform: uppercase;
+        font-weight: 400;
+        opacity: 0.8;
+      }
+      code, pre {
+        font-family: ui-monospace, "SF Mono", Menlo, monospace;
+        font-size: 13px;
+      }
+      pre {
+        background: #14181f;
+        border: 1px solid #1f242c;
+        padding: 14px 18px;
+        overflow-x: auto;
+        border-radius: 4px;
+      }
+      a {
+        color: #b8d4ff;
+      }
+      .pieces {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        gap: 12px;
+        margin-top: 16px;
+      }
+      .piece {
+        border: 1px solid #1f242c;
+        padding: 14px;
+        border-radius: 4px;
+        font-size: 13px;
+      }
+      .piece a {
+        color: inherit;
+        text-decoration: none;
+      }
+      .piece h3 {
+        margin: 0 0 6px;
+        font-size: 14px;
+        font-weight: 400;
+      }
+      .piece p {
+        margin: 0;
+        opacity: 0.55;
+        font-size: 12px;
+      }
+      hr {
+        border: 0;
+        height: 1px;
+        background: #1f242c;
+        margin: 48px 0;
+      }
+      ol {
+        padding-left: 22px;
+      }
+      ol li {
+        margin: 10px 0;
+      }
+      .small {
+        font-size: 12px;
+        opacity: 0.5;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Ambient Art Pack</h1>
+      <p class="sub">
+        Five ambient art pieces, set as a Mac screensaver. The pieces rotate; their content updates live as they evolve.
+      </p>
+
+      <h2>Pieces</h2>
+      <div class="pieces">
+        <div class="piece">
+          <a href="https://tide-pixels-2026-05-06.vercel.app/" target="_blank">
+            <h3>🌊 Tide Pixels</h3>
+            <p>Ocean canvas. Sun, moon, tide direction.</p>
+          </a>
+        </div>
+        <div class="piece">
+          <a href="https://sky-traffic-2026-05-07.vercel.app/" target="_blank">
+            <h3>🛬 Sky Traffic</h3>
+            <p>Live aircraft trails over major airports.</p>
+          </a>
+        </div>
+        <div class="piece">
+          <a href="https://bay-ships-2026-05-07.vercel.app/" target="_blank">
+            <h3>🗼 Bay Ships</h3>
+            <p>Vessels drifting through the world's bays.</p>
+          </a>
+        </div>
+        <div class="piece">
+          <a href="https://subway-pulse-2026-05-07.vercel.app/" target="_blank">
+            <h3>🚇 Subway Pulse</h3>
+            <p>Tokyo metro lines pulsing in scheduled time.</p>
+          </a>
+        </div>
+        <div class="piece">
+          <a href="https://quake-globe-2026-05-07.vercel.app/" target="_blank">
+            <h3>🪨 Quake Globe</h3>
+            <p>Earth rotating with live seismic events.</p>
+          </a>
+        </div>
+      </div>
+
+      <hr />
+
+      <h2>Install · 2 ways</h2>
+
+      <p><strong>Easy (double-click)</strong></p>
+      <ol>
+        <li>Download <a href="https://github.com/Jada-Q/ambient-art-pack/releases/latest">latest <code>.pkg</code></a></li>
+        <li>Double-click the <code>.pkg</code> · macOS Installer opens · Continue · done</li>
+        <li>First time: macOS Gatekeeper may block. Right-click the <code>.pkg</code> &rarr; Open &rarr; Open (one-time bypass)</li>
+        <li>System Settings &rarr; Screen Saver &rarr; <strong>WebViewScreenSaver</strong></li>
+      </ol>
+
+      <p><strong>One-line (developers)</strong></p>
+      <pre>brew tap Jada-Q/ambient-art-pack
+brew install --cask ambient-art-screensaver</pre>
+
+      <hr />
+
+      <h2>What it does</h2>
+      <p class="small">
+        Installs <a href="https://github.com/liquidx/webviewscreensaver">WebView Screensaver</a> (third-party, MIT-licensed)
+        and points it at <code>ambient-art-pack.vercel.app/list.json</code> — a live list of 5 ambient art pieces that rotates every 10 minutes.
+        Updates to the pieces (new content, new sprites, new pieces added to the list) appear automatically the next time your screensaver fires.
+        No re-install needed.
+      </p>
+
+      <p class="small" style="margin-top: 32px;">
+        Source: <a href="https://github.com/Jada-Q/ambient-art-pack">github.com/Jada-Q/ambient-art-pack</a> · Made with Claude Code
+      </p>
+    </main>
+  </body>
+</html>
