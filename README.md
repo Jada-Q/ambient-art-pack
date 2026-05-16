@@ -19,9 +19,23 @@ Five ambient art pieces — set them as your Mac desktop wallpaper or screensave
 1. Download [latest **Ambient.app.zip**](https://github.com/Jada-Q/ambient-art-pack/releases/latest)
 2. Double-click the zip → `Ambient.app` appears
 3. Drag `Ambient.app` to `/Applications/`
-4. **First launch only**: right-click `Ambient.app` → **Open** → **Open** (one-time Gatekeeper bypass — app is ad-hoc signed, not Apple-notarized)
-5. Menu bar shows 🌊 icon → click → pick a piece + city
-6. Your desktop becomes the ambient art
+4. Double-click `Ambient.app` → macOS will warn: "Apple could not verify…"
+   - Click **Done / 完了** (do NOT click "Move to Trash / ゴミ箱に入れる")
+5. Open **System Settings → Privacy & Security** (システム設定 → プライバシーとセキュリティ)
+6. Scroll to the **Security** section at the bottom → see "Ambient was blocked"
+7. Click **Open Anyway / このまま開く** → enter your Mac password
+8. Double-click `Ambient.app` again → opens normally
+9. Menu bar shows 🌊 icon → click → pick a piece + city
+10. Your desktop becomes the ambient art
+
+(macOS 15 Sequoia hardened Gatekeeper — ad-hoc signed apps need this one-time approval. After that, normal double-click works forever.)
+
+**Or via Terminal (fastest)**:
+```bash
+# After dragging Ambient.app to /Applications/:
+xattr -dr com.apple.quarantine /Applications/Ambient.app
+open -a Ambient
+```
 
 **Or via Homebrew**:
 ```bash
