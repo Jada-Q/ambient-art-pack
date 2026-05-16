@@ -1,82 +1,110 @@
 # Ambient Art Pack
 
-Five ambient art pieces — set them as your Mac screensaver. The pieces rotate every 10 minutes; their content updates live as they evolve.
+Five ambient art pieces — set them as your Mac desktop wallpaper or screensaver. Pieces rotate automatically; their content updates live as they evolve.
 
-**Pieces**:
-- 🌊 [Tide Pixels](https://tide-pixels-2026-05-06.vercel.app/) — ocean canvas, sun/moon/tide
-- 🛬 [Sky Traffic](https://sky-traffic-2026-05-07.vercel.app/) — live aircraft trails
-- 🗼 [Bay Ships](https://bay-ships-2026-05-07.vercel.app/) — bay vessel positions
-- 🚇 [Subway Pulse](https://subway-pulse-2026-05-07.vercel.app/) — Tokyo metro line pulses
+**Pieces** (each has 3-6 city/region variants):
+- 🌊 [Tide Pixels](https://tide-pixels-2026-05-06.vercel.app/) — ocean canvas with sun, moon, tide direction, and a pixel 海女 holding a fish basket
+- 🛬 [Sky Traffic](https://sky-traffic-2026-05-07.vercel.app/) — live aircraft trails over major airports, with a 1950s tower controller ghost
+- 🗼 [Bay Ships](https://bay-ships-2026-05-07.vercel.app/) — bay vessel positions, with a 91-year-old lighthouse keeper
+- 🚇 [Subway Pulse](https://subway-pulse-2026-05-07.vercel.app/) — Tokyo metro line pulses, with a Yamanote loop rider
 - 🪨 [Quake Globe](https://quake-globe-2026-05-07.vercel.app/) — rotating earth with live seismic events
 
 ---
 
-## Install
+## Install (Mac only, macOS 13+)
 
-### Easy (double-click `.pkg`)
+### Recommended — Ambient.app (always-on wallpaper)
 
-1. Download the latest [`.pkg` from Releases](https://github.com/Jada-Q/ambient-art-pack/releases/latest)
-2. Double-click the `.pkg`
-3. **First time**: macOS Gatekeeper may block. Right-click the `.pkg` → **Open** → **Open** (one-time bypass)
-4. macOS Installer opens → click **Continue** → enter admin password → done
-5. Open **System Settings → Screen Saver** → select **WebViewScreenSaver** from the list
+**Download path (no Terminal needed)**:
+1. Download [latest **Ambient.app.zip**](https://github.com/Jada-Q/ambient-art-pack/releases/latest)
+2. Double-click the zip → `Ambient.app` appears
+3. Drag `Ambient.app` to `/Applications/`
+4. **First launch only**: right-click `Ambient.app` → **Open** → **Open** (one-time Gatekeeper bypass — app is ad-hoc signed, not Apple-notarized)
+5. Menu bar shows 🌊 icon → click → pick a piece + city
+6. Your desktop becomes the ambient art
 
-### One-line (developers, via Homebrew)
+**Or via Homebrew**:
+```bash
+brew tap Jada-Q/ambient-art-pack
+brew install --cask ambient
+open -a Ambient
+```
+
+### Alternative — Screensaver mode (idle-triggered)
+
+If you want the art to appear only when your Mac goes idle (not always-on wallpaper):
 
 ```bash
 brew tap Jada-Q/ambient-art-pack
 brew install --cask ambient-art-screensaver
 ```
 
-Then proceed to **System Settings → Screen Saver** to select WebViewScreenSaver.
+Then **System Settings → Screen Saver → WebViewScreenSaver**.
+
+⚠️ macOS 15+ Sequoia may block third-party screensavers due to stricter signing requirements. The Ambient.app wallpaper path is more reliable.
 
 ---
 
-## What it installs
+## Using Ambient.app
 
-- [WebView Screensaver](https://github.com/liquidx/webviewscreensaver) (v2.5, MIT-licensed) at `/Library/Screen Savers/`
-- Configures it to fetch its URL list from `https://ambient-art-pack.vercel.app/list.json`
+Menu bar 🌊 → submenu:
 
-That's it. The screensaver itself fetches the live list every time it fires, so updates propagate automatically — no re-install needed when new pieces or features ship.
+| Menu | What it does |
+|---|---|
+| 🎲 Random rotation | Cycles through all 5 pieces randomly every 10 min |
+| 🌊 Tide Pixels ▶ | Pick city: Tokyo / Osaka / Hangzhou / NYC / Reykjavík / Sydney |
+| 🛬 Sky Traffic ▶ | Pick airport: Tokyo / Osaka / Shanghai / HKG / LAX / NYC |
+| 🗼 Bay Ships ▶ | Pick bay: Tokyo / Osaka / NY Harbor |
+| 🚇 Subway Pulse ▶ | Pick line: All / Yamanote / Marunouchi / Ginza / Hibiya / Chiyoda |
+| 🪨 Quake Globe ▶ | Pick region: World / Japan / Pacific Rim / Americas / Europe |
+| Reload Now (⌘R) | Force re-fetch |
+| Hide / Show (⌘H) | Toggle wallpaper visibility (Ambient stays running) |
+| Open in Browser (⌘O) | Open current piece in browser — for playing with sprites via arrow keys |
+| Quit Ambient (⌘Q) | Exit |
+
+Each piece has a small pixel character (海女 / tower ghost / lighthouse keeper / loop rider / lava). They animate autonomously on the wallpaper. For arrow-key control (move them around), use **Open in Browser** — wallpaper mode doesn't receive keyboard events (macOS limitation).
+
+## Auto-start on login
+
+System Settings → General → Login Items → click **+** → add `/Applications/Ambient.app`.
+
+## Updates
+
+Pieces update automatically — the wallpaper fetches from live URLs every 10 minutes, so new sprites / data / content show up without re-installing anything.
+
+To update Ambient.app itself: `brew upgrade --cask ambient` or download the latest zip and replace `/Applications/Ambient.app`.
 
 ## Architecture
 
 ```
-Mac idle N minutes
-  → macOS launches screensaver
-  → WebView Screensaver loads its configured remote list URL
-  → ambient-art-pack.vercel.app/list.json returns [piece1, piece2, ...]
-  → WKWebView rotates through pieces every 10 min
-  → keyboard / mouse interrupts → screensaver exits
+Ambient.app (menu bar)
+  └→ borderless WKWebView at desktop window level
+      └→ loads piece URL (with selected city/region param)
+          └→ on 10-min timer: reload
+              └→ if Random: re-fetches /random → 307 to a new piece
 ```
 
-The pieces themselves stay deployed at their original Vercel URLs. This repo only adds the screensaver wrapper + a switcher list.
+Source: `ambient-app/src/main.swift` · about 200 lines AppKit + WebKit.
 
 ## Uninstall
 
 ```bash
-# Remove the screensaver bundle
-rm -rf "/Library/Screen Savers/WebViewScreenSaver.saver"
-
-# Clear preferences
-defaults -currentHost delete net.liquidx.WebViewScreenSaver
-
-# Or via brew
-brew uninstall --cask ambient-art-screensaver
+brew uninstall --cask ambient
+# or
+rm -rf /Applications/Ambient.app
+defaults delete net.jada.ambient
 ```
 
 ## Development
 
 ```bash
-# Rebuild the .pkg
-./scripts/build-pkg.sh
-
-# Deploy the switcher URL endpoints
-vercel --prod
+cd ambient-app
+./build-app.sh        # builds build/Ambient.app
+open build/Ambient.app
 ```
 
-Source: switcher endpoints in `api/`, .pkg config in `pkg-payload/` and `pkg-scripts/`.
+Switcher URL endpoints in `api/` (Vercel). To deploy: `vercel --prod`.
 
 ## License
 
-This repo is MIT-licensed. WebView Screensaver is bundled under its own Apache 2.0 license (see [liquidx/webviewscreensaver](https://github.com/liquidx/webviewscreensaver)).
+MIT. WebView Screensaver is bundled under Apache 2.0 (see [liquidx/webviewscreensaver](https://github.com/liquidx/webviewscreensaver)).
