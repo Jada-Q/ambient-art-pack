@@ -85,6 +85,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     var statusItem: NSStatusItem!
     var reloadTimer: Timer?
     var isFetching = false
+    var isTearingDown = false  // guard against re-entrant teardown during sleep/wake races
 
     var currentPiece: Piece {
         let stored = UserDefaults.standard.string(forKey: DEFAULTS_PIECE_KEY) ?? "random"
@@ -120,10 +121,49 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         setupStatusBar()
         setupWallpaperWindows()
         startReloadTimer()
+
+        // Screen geometry changes (monitor connect/disconnect, resolution change)
         NotificationCenter.default.addObserver(self, selector: #selector(screenChanged),
                                                 name: NSApplication.didChangeScreenParametersNotification, object: nil)
+
+        // Sleep / wake — these fire on NSWorkspace.shared.notificationCenter, NOT default.
+        // Without them, the wallpaper windows may be lost / hidden after display wake,
+        // and stale WKWebView callbacks racing against window teardown can crash the app
+        // with EXC_BAD_ACCESS in objc_release during autorelease pool pop.
+        let wsCenter = NSWorkspace.shared.notificationCenter
+        wsCenter.addObserver(self, selector: #selector(screensWillSleep),
+                              name: NSWorkspace.screensDidSleepNotification, object: nil)
+        wsCenter.addObserver(self, selector: #selector(screensDidWake),
+                              name: NSWorkspace.screensDidWakeNotification, object: nil)
+        wsCenter.addObserver(self, selector: #selector(systemDidWake),
+                              name: NSWorkspace.didWakeNotification, object: nil)
+
         // Kick off background fetch — replaces `pieces` and rebuilds menu when it completes.
         fetchRemotePieces()
+    }
+
+    @objc func screensWillSleep() {
+        // Stop pending network/JS to reduce chance of stale callbacks during sleep.
+        for webView in webViews {
+            webView.stopLoading()
+        }
+    }
+
+    @objc func screensDidWake() {
+        // After display wake, re-establish wallpaper windows. WallpaperAgent may have
+        // re-asserted the system default during the wake transition; rebuilding our
+        // borderless windows at desktop level reclaims the desktop layer.
+        // Dispatch with a small delay to let the windowserver settle.
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
+            self?.setupWallpaperWindows()
+        }
+    }
+
+    @objc func systemDidWake() {
+        // Same handling as screen wake — system wake from sleep also resets the desktop.
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
+            self?.setupWallpaperWindows()
+        }
     }
 
     func fetchRemotePieces() {
@@ -223,11 +263,38 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     func setupWallpaperWindows() {
-        for w in windows { w.close() }
+        // Re-entrance guard — screen change + sleep/wake notifications can fire in
+        // quick succession and racing teardown is what causes the autorelease-pool-pop
+        // crash. Drop overlapping setup requests.
+        guard !isTearingDown else { return }
+        isTearingDown = true
+        defer { isTearingDown = false }
+
+        // Defensive teardown of previous windows: detach delegates, stop loading,
+        // remove from view hierarchy explicitly so ARC sees no orphan references.
+        for webView in webViews {
+            webView.stopLoading()
+            webView.navigationDelegate = nil
+            webView.uiDelegate = nil
+            webView.removeFromSuperview()
+        }
+        for w in windows {
+            w.contentView = nil  // drop reference to detached WKWebView container
+            w.orderOut(nil)
+            w.close()
+        }
         windows.removeAll()
         webViews.removeAll()
 
-        for screen in NSScreen.screens {
+        // Screens may be momentarily empty during sleep transition — skip silently;
+        // the screensDidWake handler will re-fire setupWallpaperWindows.
+        let screens = NSScreen.screens
+        guard !screens.isEmpty else {
+            NSLog("Ambient: setupWallpaperWindows — no screens available yet, will retry on wake")
+            return
+        }
+
+        for screen in screens {
             let window = WallpaperWindow(
                 contentRect: screen.frame, styleMask: [.borderless],
                 backing: .buffered, defer: false, screen: screen
