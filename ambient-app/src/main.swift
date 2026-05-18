@@ -100,13 +100,15 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     func currentURL() -> URL {
         let piece = currentPiece
+        // All URLs loaded by Ambient.app get ?embed=app so the web piece shows
+        // its city/region switcher dots (hidden by default on the vercel URL).
         guard let param = piece.variantParam,
               let variant = currentVariant(for: piece),
               variant.key != piece.variants.first?.key  // first is default, omit param
         else {
-            return URL(string: piece.baseURL)!
+            return URL(string: "\(piece.baseURL)?embed=app")!
         }
-        return URL(string: "\(piece.baseURL)?\(param)=\(variant.key)")!
+        return URL(string: "\(piece.baseURL)?embed=app&\(param)=\(variant.key)")!
     }
 
     func currentLabel() -> String {
