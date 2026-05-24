@@ -2,6 +2,8 @@
 
 Six ambient art pieces — set them as your Mac desktop wallpaper or screensaver. Pieces rotate automatically; their content updates live as they evolve.
 
+![Ambient Art Pack — six pieces in sequence, ending with the in-piece city switcher (Tide Pixels → Osaka)](demo.gif)
+
 **Pieces** (each has 3-6 city/region variants):
 - 🌊 [Tide Pixels](https://tide-pixels-2026-05-06.vercel.app/) — ocean canvas with sun, moon, tide direction, and a pixel 海女 holding a fish basket
 - 🛬 [Sky Traffic](https://sky-traffic-2026-05-07.vercel.app/) — live aircraft trails over major airports, with a 1950s tower controller ghost
