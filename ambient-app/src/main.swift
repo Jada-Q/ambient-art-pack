@@ -98,17 +98,22 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         return piece.variants.first { $0.key == stored } ?? piece.variants.first
     }
 
-    func currentURL() -> URL {
+    var bgmEnabled: Bool { UserDefaults.standard.bool(forKey: "bgmEnabled") }
+
+    func currentURL(bgm: Bool = false) -> URL {
         let piece = currentPiece
         // All URLs loaded by Ambient.app get ?embed=app so the web piece shows
         // its city/region switcher dots (hidden by default on the vercel URL).
+        // bgm=1 is appended only for the first screen's webview — one audio stream,
+        // not N phase-fighting copies on multi-monitor setups.
+        let bgmSuffix = bgm ? "&bgm=1" : ""
         guard let param = piece.variantParam,
               let variant = currentVariant(for: piece),
               variant.key != piece.variants.first?.key  // first is default, omit param
         else {
-            return URL(string: "\(piece.baseURL)?embed=app")!
+            return URL(string: "\(piece.baseURL)?embed=app\(bgmSuffix)")!
         }
-        return URL(string: "\(piece.baseURL)?embed=app&\(param)=\(variant.key)")!
+        return URL(string: "\(piece.baseURL)?embed=app&\(param)=\(variant.key)\(bgmSuffix)")!
     }
 
     func currentLabel() -> String {
@@ -146,7 +151,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     @objc func screensWillSleep() {
         // Stop pending network/JS to reduce chance of stale callbacks during sleep.
+        // Also suspend any BGM audio context — wake rebuilds windows with a fresh
+        // load, so this only needs to silence the dying page.
         for webView in webViews {
+            webView.evaluateJavaScript("window.__bgmPause?.()", completionHandler: nil)
             webView.stopLoading()
         }
     }
@@ -253,6 +261,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
 
         menu.addItem(NSMenuItem.separator())
+        let bgmItem = NSMenuItem(title: "BGM ♪", action: #selector(toggleBgm), keyEquivalent: "b")
+        bgmItem.state = bgmEnabled ? .on : .off
+        menu.addItem(bgmItem)
         menu.addItem(NSMenuItem(title: "Reload Now", action: #selector(reloadNow), keyEquivalent: "r"))
         menu.addItem(NSMenuItem(title: "Refresh Pieces from Remote", action: #selector(refreshPieces), keyEquivalent: "R"))
         menu.addItem(NSMenuItem(title: "Hide / Show", action: #selector(toggleVisibility), keyEquivalent: "h"))
@@ -308,10 +319,15 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             window.ignoresMouseEvents = true
             window.hasShadow = false
 
-            let webView = WKWebView(frame: window.contentView!.bounds, configuration: WKWebViewConfiguration())
+            // Allow Web Audio / media to start without a user gesture — wallpaper
+            // windows ignore mouse events, so a gesture can never happen here.
+            let wkConfig = WKWebViewConfiguration()
+            wkConfig.mediaTypesRequiringUserActionForPlayback = []
+
+            let webView = WKWebView(frame: window.contentView!.bounds, configuration: wkConfig)
             webView.autoresizingMask = [.width, .height]
             webView.setValue(false, forKey: "drawsBackground")
-            webView.load(URLRequest(url: currentURL()))
+            webView.load(URLRequest(url: currentURL(bgm: bgmEnabled && webViews.isEmpty)))
             window.contentView?.addSubview(webView)
 
             window.makeKeyAndOrderFront(nil)
@@ -328,7 +344,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     func reloadAll() {
-        for webView in webViews { webView.load(URLRequest(url: currentURL())) }
+        for (i, webView) in webViews.enumerated() {
+            webView.load(URLRequest(url: currentURL(bgm: bgmEnabled && i == 0)))
+        }
     }
 
     @objc func selectPiece(_ sender: NSMenuItem) {
@@ -353,9 +371,21 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     @objc func refreshPieces() { fetchRemotePieces() }
 
+    @objc func toggleBgm() {
+        UserDefaults.standard.set(!bgmEnabled, forKey: "bgmEnabled")
+        rebuildMenu()
+        reloadAll()
+    }
+
     @objc func toggleVisibility() {
         for w in windows {
             if w.isVisible { w.orderOut(nil) } else { w.makeKeyAndOrderFront(nil) }
+        }
+        // Wallpaper hidden → no reason to keep playing; resume when shown again.
+        let visible = windows.first?.isVisible ?? false
+        for webView in webViews {
+            webView.evaluateJavaScript(visible ? "window.__bgmResume?.()" : "window.__bgmPause?.()",
+                                       completionHandler: nil)
         }
     }
 
