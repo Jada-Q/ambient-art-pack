@@ -17,3 +17,5 @@ vendor/*.zip
 # Vendor bundle (re-downloadable from upstream — keep tracked for reproducibility)
 # Uncomment to fetch fresh each build:
 # vendor/
+bgm-demos/.venv/
+bgm-demos/musicgen/*.wav
