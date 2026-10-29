@@ -7,7 +7,7 @@ cd "$ROOT"
 
 APP_NAME="Ambient"
 BUNDLE_ID="net.jada.ambient"
-VERSION="${1:-0.1.0}"
+VERSION="${1:-0.3.1}"  # 与 release tag / cask version 对齐；发新版时同步改这里
 
 APP_DIR="build/$APP_NAME.app"
 CONTENTS="$APP_DIR/Contents"

@@ -86,6 +86,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     var reloadTimer: Timer?
     var isFetching = false
     var isTearingDown = false  // guard against re-entrant teardown during sleep/wake races
+    // 2026-10-28: isTearingDown 只防同步重入（defer 一返回就解锁），防不住
+    // 「0.5s 后再来一次」这种跨异步边界的重建。pendingRebuild 把成串事件合并成一次。
+    var pendingRebuild: DispatchWorkItem?
 
     var currentPiece: Piece {
         let stored = UserDefaults.standard.string(forKey: DEFAULTS_PIECE_KEY) ?? "random"
@@ -164,16 +167,13 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         // re-asserted the system default during the wake transition; rebuilding our
         // borderless windows at desktop level reclaims the desktop layer.
         // Dispatch with a small delay to let the windowserver settle.
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
-            self?.setupWallpaperWindows()
-        }
+        scheduleWallpaperRebuild()
     }
 
     @objc func systemDidWake() {
         // Same handling as screen wake — system wake from sleep also resets the desktop.
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
-            self?.setupWallpaperWindows()
-        }
+        // 与 screensDidWake 共用去抖器：一次唤醒两个通知都会来，合并成一次重建。
+        scheduleWallpaperRebuild()
     }
 
     func fetchRemotePieces() {
@@ -275,6 +275,20 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         statusItem.menu = menu
     }
 
+    /// 把窗口重建请求合并成一次。唤醒时 screensDidWake / systemDidWake /
+    /// screenChanged 会成串触发，每个都各自拆建窗口，而上一批窗口的
+    /// CoreAnimation 动画还在飞 → _NSWindowTransformAnimation 被多释放一次
+    /// → objc_release 时 EXC_BAD_ACCESS。这里有待执行的先取消，只留最后一个。
+    func scheduleWallpaperRebuild(after delay: TimeInterval = 0.5) {
+        pendingRebuild?.cancel()
+        let item = DispatchWorkItem { [weak self] in
+            self?.pendingRebuild = nil
+            self?.setupWallpaperWindows()
+        }
+        pendingRebuild = item
+        DispatchQueue.main.asyncAfter(deadline: .now() + delay, execute: item)
+    }
+
     func setupWallpaperWindows() {
         // Re-entrance guard — screen change + sleep/wake notifications can fire in
         // quick succession and racing teardown is what causes the autorelease-pool-pop
@@ -318,6 +332,16 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             window.backgroundColor = NSColor.black
             window.ignoresMouseEvents = true
             window.hasShadow = false
+            // 2026-10-28 第二轮：NSWindow(contentRect:…) 创建时 isReleasedWhenClosed
+            // 默认 true —— close() 时 AppKit 会自己 release 一次，而我们把窗口存进
+            // windows 数组（ARC 强引用），teardown 里 close() + removeAll() 等于
+            // 同一对象被释放两次，第二次落在 autorelease pool pop → SIGSEGV。
+            // 设 false 后 ARC 是唯一所有者。（第一轮只关了窗口动画，把崩溃栈顶的
+            // _NSWindowTransformAnimation 挪走了，但多释放的根还在。）
+            window.isReleasedWhenClosed = false
+            // 2026-10-28: 壁纸窗口不需要任何系统窗口动画。关掉后 AppKit 不再创建
+            // _NSWindowTransformAnimation —— 崩溃栈顶那个被多释放的对象就是它。
+            window.animationBehavior = .none
 
             // Allow Web Audio / media to start without a user gesture — wallpaper
             // windows ignore mouse events, so a gesture can never happen here.
@@ -399,7 +423,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
 
-    @objc func screenChanged() { setupWallpaperWindows() }
+    // 2026-10-28: 原为同步立即重建。didChangeScreenParameters 在唤醒/接显示器时
+    // 成串触发，每串都同步拆建 → 正是崩溃的主要来源。改走去抖器。
+    @objc func screenChanged() { scheduleWallpaperRebuild(after: 0.3) }
 }
 
 let app = NSApplication.shared
