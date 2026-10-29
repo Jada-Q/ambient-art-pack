@@ -43,9 +43,17 @@ open -a Ambient
 **Or via Homebrew**:
 ```bash
 brew tap Jada-Q/ambient-art-pack
+brew trust jada-q/ambient-art-pack   # see note below
 brew install --cask ambient
 open -a Ambient
 ```
+
+> **Why `brew trust`?** Current Homebrew refuses to load formulae and casks from
+> third-party taps until you trust them, so without this step the install stops
+> with `Refusing to load cask … from untrusted tap`. (Verified on Homebrew 7.0.9;
+> the `brew trust` command itself has existed since 6.0.) The command records the tap
+> in `~/.homebrew/trust.json`; it covers every cask in this tap, so you only run
+> it once. Undo it any time with `brew untrust jada-q/ambient-art-pack`.
 
 ### Alternative — Screensaver mode (idle-triggered)
 
@@ -53,6 +61,7 @@ If you want the art to appear only when your Mac goes idle (not always-on wallpa
 
 ```bash
 brew tap Jada-Q/ambient-art-pack
+brew trust jada-q/ambient-art-pack   # once per tap, see note above
 brew install --cask ambient-art-screensaver
 ```
 
